@@ -24,13 +24,13 @@ module cla64_flat(
   // a real signal in the final circuit, it just controls how many times
   // the loop body is elaborated.
   // ---------------------------------------------------------------------
-  genvar i;
-  generate
-    for (i = 0; i < 64; i = i + 1) begin : gen_pg
-      xor #(2) (p[i], a[i], b[i]);
-      and #(2) (g[i], a[i], b[i]);
-    end
-  endgenerate
+  //genvar i;
+  //generate
+    //for (i = 0; i < 64; i = i + 1) begin : gen_pg
+      //xor #(2) (p[i], a[i], b[i]);
+      //and #(2) (g[i], a[i], b[i]);
+    //end
+  //endgenerate
 
   // ---------------------------------------------------------------------
   // Step 2: the 64 direct carry equations -- YOUR TASK
@@ -61,11 +61,40 @@ module cla64_flat(
   //
   // TODO: paste your verified assign statements for c[1] through c[64] here.
 
-  assign cout = c[64];
+    function automatic carry_bit;
+        input integer   i;
+        input [63:0]   g_in;
+        input [63:0]   p_in;
+        input           cin_in;
+        integer k;
+        reg     res;
+        reg     pprod;   // running product of p terms
+        begin
+            res   = g_in[i];
+            pprod = 1'b1;
+            for (k = i - 1; k >= 0; k = k - 1) begin
+                pprod = pprod & p_in[k+1];
+                res   = res | (pprod & g_in[k]);
+            end
+            pprod = pprod & p_in[0];
+            res   = res | (pprod & cin_in);
+            carry_bit = res;
+        end
+    endfunction
+
+    genvar i;
+    generate
+        for (i = 1; i < 64; i = i + 1) begin : gen_fa
+            assign c[i] = carry_bit(i, g, p, cin);
+        end
+    endgenerate
+
+    assign cout = c[63];
 
   // ---------------------------------------------------------------------
   // Step 3: sum bits
   // ---------------------------------------------------------------------
   // TODO: assign #(2) sum = p ^ {c[63:1], cin};
+assign #(2) sum = p ^ {c[63:1], cin};
 
 endmodule
