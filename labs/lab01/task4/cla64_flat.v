@@ -13,7 +13,7 @@ module cla64_flat(
 );
 
   wire [63:0] p, g;
-  wire [63:0] c;   // c[1]..c[64] are the 64 carries; think of cin as c[0]
+  wire [64:1] c;   // c[1]..c[64] are the 64 carries; think of cin as c[0]
 
   // ---------------------------------------------------------------------
   // Step 1: generate/propagate signals -- WORKED EXAMPLE
@@ -85,11 +85,11 @@ module cla64_flat(
     genvar i;
     generate
         for (i = 0; i < 64; i = i + 1) begin : gen_fa
-            assign c[i] = carry_bit(i, g, p, cin);
+            assign c[i+1] = carry_bit(i, g, p, cin);
         end
     endgenerate
 
-    assign cout = c[63];
+    assign cout = c[64];
 
   // ---------------------------------------------------------------------
   // Step 3: sum bits
