@@ -85,11 +85,11 @@ module cla64_flat(
     genvar i;
     generate
         for (i = 0; i < 64; i = i + 1) begin : gen_fa
-            assign c[i+1] = carry_bit(i, g, p, cin);
+            assign #(2) c[i+1] = carry_bit(i, g, p, cin);
         end
     endgenerate
 
-    assign cout = c[64];
+    assign #(2) cout = c[64];
 
   // ---------------------------------------------------------------------
   // Step 3: sum bits
